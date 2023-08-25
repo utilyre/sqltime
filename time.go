@@ -1,3 +1,18 @@
+// Package sqltime provides support for Postgres time data type.
+//
+// # Examples
+//
+// ## GORM
+//
+// **NOTE**: Do not use gorm.DB.AutoMigrate(&Example{}) for any model containing
+// sqltime.Time, because GORM will try to create a column of type timestamptz
+// instead.
+//
+//	type Example struct {
+//		gorm.Model
+//		// ...
+//		Clock sqltime.Time `gorm:"type:time"`
+//	}
 package sqltime
 
 import (
@@ -9,6 +24,7 @@ import (
 	"time"
 )
 
+// Time is a one-to-one representation of Postgres time data type.
 type Time struct {
 	Hour   int
 	Minute int
