@@ -25,8 +25,8 @@ func (t *Time) Parse(s string) error {
 	if err != nil {
 		return atoiErr("Parse", PartHour, err)
 	}
-	if hh < 0 {
-		return negativePartErr("Parse", PartHour)
+	if hh < 0 || hh > 23 {
+		return rangeErr("Parse", PartHour)
 	}
 
 	mm := 0
@@ -35,8 +35,8 @@ func (t *Time) Parse(s string) error {
 		if err != nil {
 			return atoiErr("Parse", PartMinute, err)
 		}
-		if mm < 0 {
-			return negativePartErr("Parse", PartMinute)
+		if mm < 0 || mm > 59 {
+			return rangeErr("Parse", PartMinute)
 		}
 	}
 
@@ -46,8 +46,8 @@ func (t *Time) Parse(s string) error {
 		if err != nil {
 			return atoiErr("Parse", PartSecond, err)
 		}
-		if ss < 0 {
-			return negativePartErr("Parse", PartSecond)
+		if ss < 0 || ss > 59 {
+			return rangeErr("Parse", PartSecond)
 		}
 	}
 

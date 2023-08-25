@@ -14,7 +14,7 @@ const (
 
 var (
 	ErrTooManyParts = errors.New("too many parts")
-	ErrNegativePart = errors.New("negative part")
+	ErrRange        = errors.New("out of range")
 )
 
 type TimeError struct {
@@ -39,11 +39,11 @@ func atoiErr(fn string, part int, err error) *TimeError {
 	}
 }
 
-func negativePartErr(fn string, part int) *TimeError {
+func rangeErr(fn string, part int) *TimeError {
 	return &TimeError{
 		Func: fn,
 		Part: part,
-		Err:  ErrNegativePart,
+		Err:  ErrRange,
 	}
 }
 
