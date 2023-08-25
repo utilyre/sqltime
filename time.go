@@ -29,20 +29,26 @@ func (t *Time) Parse(s string) error {
 		return negativePartErr("Parse", PartHour)
 	}
 
-	mm, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return atoiErr("Parse", PartMinute, err)
-	}
-	if mm < 0 {
-		return negativePartErr("Parse", PartMinute)
+	mm := 0
+	if len(parts) > 1 {
+		mm, err = strconv.Atoi(parts[1])
+		if err != nil {
+			return atoiErr("Parse", PartMinute, err)
+		}
+		if mm < 0 {
+			return negativePartErr("Parse", PartMinute)
+		}
 	}
 
-	ss, err := strconv.Atoi(parts[2])
-	if err != nil {
-		return atoiErr("Parse", PartSecond, err)
-	}
-	if ss < 0 {
-		return negativePartErr("Parse", PartSecond)
+	ss := 0
+	if len(parts) > 2 {
+		ss, err = strconv.Atoi(parts[2])
+		if err != nil {
+			return atoiErr("Parse", PartSecond, err)
+		}
+		if ss < 0 {
+			return negativePartErr("Parse", PartSecond)
+		}
 	}
 
 	t.Hour, t.Minute, t.Second = hh, mm, ss
