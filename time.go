@@ -3,14 +3,11 @@ package sqltime
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 )
-
-var ErrInvalidLayout = errors.New("Invalid time layout")
 
 type Time struct {
 	Hour   int
@@ -20,26 +17,32 @@ type Time struct {
 
 func (t *Time) Parse(s string) error {
 	parts := strings.Split(s, ":")
-	if len(parts) != 3 {
-		return ErrInvalidLayout
-	}
-	if len(parts[0]) != 2 || len(parts[1]) != 2 || len(parts[2]) != 2 {
-		return ErrInvalidLayout
+	if len(parts) > 3 {
+		return tooManyPartsErr("Parse")
 	}
 
 	hh, err := strconv.Atoi(parts[0])
 	if err != nil {
-		return ErrInvalidLayout
+		return atoiErr("Parse", PartHour, err)
+	}
+	if hh < 0 {
+		return negativePartErr("Parse", PartHour)
 	}
 
 	mm, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return ErrInvalidLayout
+		return atoiErr("Parse", PartMinute, err)
+	}
+	if mm < 0 {
+		return negativePartErr("Parse", PartMinute)
 	}
 
 	ss, err := strconv.Atoi(parts[2])
 	if err != nil {
-		return ErrInvalidLayout
+		return atoiErr("Parse", PartSecond, err)
+	}
+	if ss < 0 {
+		return negativePartErr("Parse", PartSecond)
 	}
 
 	t.Hour, t.Minute, t.Second = hh, mm, ss
@@ -74,7 +77,7 @@ func (s *Time) Scan(src any) error {
 		*s = Time{}
 		return nil
 	default:
-		return fmt.Errorf("cannot sql.Scan() Time from: %#v", v)
+		return scanErr("Scan", v)
 	}
 }
 
