@@ -27,9 +27,21 @@ import (
 
 // Time is a one-to-one representation of Postgres time data type.
 type Time struct {
-	Hour   int
-	Minute int
-	Second int
+	hour   int
+	minute int
+	second int
+}
+
+func (t Time) Hour() int {
+	return t.hour
+}
+
+func (t Time) Minute() int {
+	return t.minute
+}
+
+func (t Time) Second() int {
+	return t.second
 }
 
 func (t *Time) Parse(s string) error {
@@ -89,14 +101,14 @@ func (t *Time) Parse(s string) error {
 		}
 	}
 
-	t.Hour, t.Minute, t.Second = hh, mm, ss
+	t.hour, t.minute, t.second = hh, mm, ss
 	return nil
 }
 
 var _ fmt.Stringer = Time{}
 
 func (t Time) String() string {
-	return fmt.Sprintf("%02d:%02d:%02d", t.Hour, t.Minute, t.Second)
+	return fmt.Sprintf("%02d:%02d:%02d", t.hour, t.minute, t.second)
 }
 
 var _ json.Unmarshaler = (*Time)(nil)
@@ -123,7 +135,7 @@ func (s *Time) Scan(src any) error {
 	case string:
 		return s.Parse(v)
 	case time.Time:
-		s.Hour, s.Minute, s.Second = v.Hour(), v.Minute(), v.Second()
+		s.hour, s.minute, s.second = v.Hour(), v.Minute(), v.Second()
 		return nil
 	case nil:
 		*s = Time{}
