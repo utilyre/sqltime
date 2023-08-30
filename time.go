@@ -1,18 +1,4 @@
 // Package sqltime provides support for Postgres time data type.
-//
-// # Examples
-//
-// ## GORM
-//
-// **NOTE**: Do not use gorm.DB.AutoMigrate(&Example{}) for any model containing
-// sqltime.Time, because GORM will try to create a column of type timestamptz
-// instead.
-//
-//	type Example struct {
-//		gorm.Model
-//		// ...
-//		Clock sqltime.Time `gorm:"type:time"`
-//	}
 package sqltime
 
 import (
@@ -25,25 +11,29 @@ import (
 	"time"
 )
 
-// Time is a one-to-one representation of Postgres time data type.
+// Time is a one-to-one representation of SQL time data type.
 type Time struct {
 	hour   int
 	minute int
 	second int
 }
 
+// Hour returns the hour specified by t, in the range [0, 23].
 func (t Time) Hour() int {
 	return t.hour
 }
 
+// Minute returns the minute specified by t, in the range [0, 59].
 func (t Time) Minute() int {
 	return t.minute
 }
 
+// Second returns the second specified by t, in the range [0, 59].
 func (t Time) Second() int {
 	return t.second
 }
 
+// Add returns the time t+d.
 func (t Time) Add(d Time) Time {
 	return Time{
 		hour:   (t.hour + d.hour) % 24,
@@ -52,6 +42,7 @@ func (t Time) Add(d Time) Time {
 	}
 }
 
+// Sub returns the time t-d.
 func (t Time) Sub(d Time) Time {
 	return Time{
 		hour:   (t.hour - d.hour) % 24,
@@ -60,6 +51,7 @@ func (t Time) Sub(d Time) Time {
 	}
 }
 
+// Parse parses a formatted string, in time.TimeOnly (15:04:05) format.
 func (t *Time) Parse(s string) error {
 	parts := strings.Split(s, ":")
 	if len(parts) > 3 {

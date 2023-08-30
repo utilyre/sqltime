@@ -2,6 +2,7 @@ package sqltime
 
 import "fmt"
 
+// Part indicates a part of time (e.g. hour).
 type Part int
 
 const (
