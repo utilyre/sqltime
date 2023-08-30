@@ -19,6 +19,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -32,28 +33,98 @@ type Time struct {
 	Second int
 }
 
+type Part int
+
+var _ fmt.Stringer = (Part)(0)
+
+func (p Part) String() string {
+	switch p {
+	case PartHour:
+		return "Hour"
+	case PartMinute:
+		return "Minute"
+	case PartSecond:
+		return "Second"
+	default:
+		return ""
+	}
+}
+
+const (
+	PartHour Part = iota + 1
+	PartMinute
+	PartSecond
+)
+
+type RangeError struct {
+	Part Part
+	Min  int
+	Max  int
+}
+
+var _ error = (*RangeError)(nil)
+
+func (e *RangeError) Error() string {
+	return fmt.Sprintf("%s out of range [%d, %d]", e.Part, e.Min, e.Max)
+}
+
+type AtoiError struct {
+	Part Part
+	Err  error
+}
+
+var _ error = (*AtoiError)(nil)
+
+func (e *AtoiError) Error() string {
+	return fmt.Sprintf("%s %v", e.Part, e.Err)
+}
+
+var _ interface{ Unwrap() error } = (*AtoiError)(nil)
+
+func (e *AtoiError) Unwrap() error {
+	return e.Err
+}
+
+var (
+	ErrTooManyParts = errors.New("too many parts")
+)
+
 func (t *Time) Parse(s string) error {
 	parts := strings.Split(s, ":")
 	if len(parts) > 3 {
-		return tooManyPartsErr("Parse")
+		return ErrTooManyParts
 	}
 
 	hh, err := strconv.Atoi(parts[0])
 	if err != nil {
-		return atoiErr("Parse", PartHour, err)
+		return &AtoiError{
+			Part: PartHour,
+			Err:  err,
+		}
 	}
 	if hh < 0 || hh > 23 {
-		return rangeErr("Parse", PartHour)
+		return &RangeError{
+			Part: PartHour,
+			Min:  0,
+			Max:  23,
+		}
 	}
 
 	mm := 0
 	if len(parts) > 1 {
 		mm, err = strconv.Atoi(parts[1])
 		if err != nil {
-			return atoiErr("Parse", PartMinute, err)
+			return &AtoiError{
+				Part: PartMinute,
+				Err:  err,
+			}
 		}
 		if mm < 0 || mm > 59 {
-			return rangeErr("Parse", PartMinute)
+			return &RangeError{
+				Part: PartMinute,
+				Min:  0,
+				Max:  59,
+			}
 		}
 	}
 
@@ -61,10 +132,17 @@ func (t *Time) Parse(s string) error {
 	if len(parts) > 2 {
 		ss, err = strconv.Atoi(parts[2])
 		if err != nil {
-			return atoiErr("Parse", PartSecond, err)
+			return &AtoiError{
+				Part: PartSecond,
+				Err:  err,
+			}
 		}
 		if ss < 0 || ss > 59 {
-			return rangeErr("Parse", PartSecond)
+			return &RangeError{
+				Part: PartSecond,
+				Min:  0,
+				Max:  59,
+			}
 		}
 	}
 
@@ -108,7 +186,7 @@ func (s *Time) Scan(src any) error {
 		*s = Time{}
 		return nil
 	default:
-		return scanErr("Scan", v)
+		return fmt.Errorf("type sqltime.Time is incompatible with value %v", v)
 	}
 }
 
