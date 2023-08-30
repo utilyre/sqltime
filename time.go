@@ -35,20 +35,40 @@ func (t Time) Second() int {
 
 // Add returns the time t+d.
 func (t Time) Add(d Time) Time {
-	return Time{
-		hour:   (t.hour + d.hour) % 24,
-		minute: (t.minute + d.minute) % 60,
-		second: (t.second + d.second) % 60,
+	r := Time{
+		hour:   t.Hour() + d.Hour(),
+		minute: t.Minute() + d.Minute(),
+		second: t.Second() + d.Second(),
 	}
+
+	r.minute += r.Second() / 60
+	r.second = r.Second() % 60
+
+	r.hour += r.Minute() / 60
+	r.minute = r.Minute() % 60
+
+	r.hour = r.Hour() % 24
+
+	return r
 }
 
 // Sub returns the time t-d.
 func (t Time) Sub(d Time) Time {
-	return Time{
-		hour:   (t.hour - d.hour) % 24,
-		minute: (t.minute - d.minute) % 60,
-		second: (t.second - d.second) % 60,
+	r := Time{
+		hour:   t.Hour() - d.Hour(),
+		minute: t.Minute() - d.Minute(),
+		second: t.Second() - d.Second(),
 	}
+
+	r.minute += div(r.Second(), 60)
+	r.second = mod(r.Second(), 60)
+
+	r.hour += div(r.Minute(), 60)
+	r.minute = mod(r.Minute(), 60)
+
+	r.hour = mod(r.Hour(), 24)
+
+	return r
 }
 
 // Parse parses a formatted string, in time.TimeOnly (15:04:05) format.
