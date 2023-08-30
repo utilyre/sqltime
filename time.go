@@ -44,6 +44,22 @@ func (t Time) Second() int {
 	return t.second
 }
 
+func (t Time) Add(d Time) Time {
+	return Time{
+		hour:   (t.hour + d.hour) % 24,
+		minute: (t.minute + d.minute) % 60,
+		second: (t.second + d.second) % 60,
+	}
+}
+
+func (t Time) Sub(d Time) Time {
+	return Time{
+		hour:   (t.hour - d.hour) % 24,
+		minute: (t.minute - d.minute) % 60,
+		second: (t.second - d.second) % 60,
+	}
+}
+
 func (t *Time) Parse(s string) error {
 	parts := strings.Split(s, ":")
 	if len(parts) > 3 {
