@@ -16,6 +16,7 @@
 package sqltime
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
@@ -71,9 +72,13 @@ func (t *Time) Parse(s string) error {
 	return nil
 }
 
+var _ fmt.Stringer = Time{}
+
 func (t Time) String() string {
 	return fmt.Sprintf("%02d:%02d:%02d", t.Hour, t.Minute, t.Second)
 }
+
+var _ json.Unmarshaler = (*Time)(nil)
 
 func (s *Time) UnmarshalJSON(data []byte) error {
 	str := ""
@@ -82,9 +87,13 @@ func (s *Time) UnmarshalJSON(data []byte) error {
 	return s.Parse(str)
 }
 
+var _ json.Marshaler = (*Time)(nil)
+
 func (s Time) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.String())
 }
+
+var _ sql.Scanner = (*Time)(nil)
 
 func (s *Time) Scan(src any) error {
 	switch v := src.(type) {
@@ -102,6 +111,8 @@ func (s *Time) Scan(src any) error {
 		return scanErr("Scan", v)
 	}
 }
+
+var _ driver.Valuer = Time{}
 
 func (s Time) Value() (driver.Value, error) {
 	return driver.Value(s.String()), nil
