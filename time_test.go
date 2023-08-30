@@ -61,3 +61,43 @@ func TestParse(t *testing.T) {
 		}
 	}
 }
+
+func TestAdd(t *testing.T) {
+	assert.Equal(
+		t,
+		Time{hour: 15, minute: 18, second: 45},
+		Time{hour: 13, minute: 10, second: 45}.Add(Time{hour: 2, minute: 8, second: 0}),
+	)
+
+	assert.Equal(
+		t,
+		Time{hour: 0, minute: 1, second: 30},
+		Time{hour: 23, minute: 5, second: 20}.Add(Time{hour: 0, minute: 56, second: 10}),
+	)
+
+	assert.Equal(
+		t,
+		Time{hour: 15, minute: 0, second: 22},
+		Time{hour: 14, minute: 59, second: 32}.Add(Time{hour: 0, minute: 0, second: 50}),
+	)
+}
+
+func TestSub(t *testing.T) {
+	assert.Equal(
+		t,
+		Time{hour: 11, minute: 2, second: 45},
+		Time{hour: 13, minute: 10, second: 45}.Sub(Time{hour: 2, minute: 8, second: 0}),
+	)
+
+	assert.Equal(
+		t,
+		Time{hour: 22, minute: 59, second: 59},
+		Time{hour: 23, minute: 4, second: 20}.Sub(Time{hour: 0, minute: 4, second: 21}),
+	)
+
+	assert.Equal(
+		t,
+		Time{hour: 23, minute: 59, second: 28},
+		Time{hour: 0, minute: 0, second: 2}.Sub(Time{hour: 0, minute: 0, second: 34}),
+	)
+}
