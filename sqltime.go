@@ -1,3 +1,4 @@
+// Package sqltime provides support for Postgres time data type.
 package sqltime
 
 // Parse parses a formatted string, in time.TimeOnly (15:04:05) format, and

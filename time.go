@@ -1,4 +1,3 @@
-// Package sqltime provides support for Postgres time data type.
 package sqltime
 
 import (
